@@ -1,94 +1,141 @@
-﻿# Multi-Queue Router Simulator
+# Multi-Queue Router Simulator
 
-A responsive educational simulator built with React, JavaScript, React Router, Tailwind CSS, and Vite. Create packets, follow their destination routes, and see array-based priority queues in action. Everything runs locally in the browser; no authentication, backend, database, or real network traffic is involved.
+<p align="center">
+  <img src="public/brand/router-logo.png" alt="Multi-Queue Router Simulator logo" width="420">
+</p>
 
-## Run locally
+<p align="center">
+  <strong>An interactive web application for learning packet routing, priority queues, and Data Structures & Algorithms (DSA).</strong>
+</p>
 
-Use Node.js 22 or later and npm. Open a terminal in this project folder:
+Built with **React, JavaScript, Tailwind CSS, Vite, and React Router**. Create packets, route them by destination IP, and watch four array-based priority queues process them step by step.
 
-```powershell
+> **Educational simulation:** This project models routing decisions in the browser. It does not send real network packets or connect to physical routers. No backend, database, or account is required.
+
+## Features
+
+- **Packet management:** Create packets with an ID, source IP, destination IP, and numerical priority.
+- **Four routing queues:** See packet arrivals, current capacity, and processing order.
+- **Priority-based processing:** The lowest numerical priority value is served first *within the selected queue*.
+- **Interactive packet journey:** Follow packet creation, routing, enqueue, and processing.
+- **Guided demonstration:** Load sample packets and process them one by one.
+- **Activity history:** Review accepted, processed, and dropped packets with timestamps.
+- **Algorithm learning lab:** Explore linear search, FIFO ties, enqueue, dequeue, and array shifting.
+- **Responsive interface:** Navigate the simulator on desktop or mobile.
+
+## Pages
+
+| Page | Purpose |
+| --- | --- |
+| **Dashboard** | Overview of queued, accepted, processed, and dropped packets |
+| **Packet Management** | Add and process packets |
+| **Queue Management** | View all four queues and identify the next packet |
+| **Activity History** | Search and filter simulation events |
+| **How It Works** | Learn and interact with the underlying DSA logic |
+
+## How the router works
+
+Each packet contains:
+
+| Field | Example |
+| --- | --- |
+| Packet ID | `101` |
+| Source IP | `192.168.1.10` |
+| Destination IP | `10.0.0.8` |
+| Priority | `2` |
+
+The destination IP determines the packet's queue:
+
+| Destination IP starts with | Assigned queue |
+| --- | --- |
+| `192.` | Queue 0 |
+| `10.` | Queue 1 |
+| `172.` | Queue 2 |
+| `150.` | Queue 3 |
+| Other valid IPv4 address | Queue 0 (default) |
+
+**DSA rules:**
+
+1. There are **4 array-based queues**, each holding at most **3 packets**.
+2. The router always checks **Queue 0 → Queue 1 → Queue 2 → Queue 3** and processes a packet from the first nonempty queue.
+3. Within that queue, a **linear search** selects the packet with the **lowest numerical priority**.
+4. Equal-priority packets are processed in **first-in, first-out (FIFO)** order.
+5. After dequeue, remaining elements are **shifted left** in the array.
+6. A packet arriving at a full queue is **dropped**. Duplicate active packet IDs are rejected; IDs become available again after processing.
+
+> **Important:** Queue order comes before packet priority across queues. A priority-`5` packet in Queue 0 is processed before a priority-`0` packet waiting in Queue 1.
+
+## Getting started
+
+**Requirements:** Node.js 22 or later and npm.
+
+```bash
+# Clone the repository
+git clone https://github.com/sohailahmadmarwat/Multi-Queue-Router-Simulator.git
+
+# Open the project
+cd Multi-Queue-Router-Simulator
+
+# Install dependencies
 npm install
+
+# Start the development server
 npm run dev
 ```
 
-Open the local URL printed by Vite, usually `http://localhost:5173/`. Stop the server with `Ctrl+C`.
+Open the local address shown by Vite (usually **http://localhost:5173/**).
 
-## Five pages, one simulation
+### Try a simulation
 
-| Page | Route | What you can do |
-| --- | --- | --- |
-| Dashboard | `/` | See real session statistics, queue occupancy, the next packet, recent activity, and guided-demo progress. |
-| Packet Management | `/packets` | Create packets, validate inputs, process packets, and review the latest real packet journey. |
-| Queue Management | `/queues` | Inspect arrival indices, priorities, capacity, processing order, and the latest packet journey. |
-| Activity History | `/history` | Search and filter accepted, processed, and dropped events. |
-| How It Works | `/how-it-works` | Learn the rules and step through an interactive routing and array-queue practice lab. |
+1. Open **Packet Management**.
+2. Enter a packet ID, valid source and destination IPv4 addresses, and a priority.
+3. Select **Add Packet** to route it into a queue.
+4. Visit **Queue Management** to inspect the packet and its priority.
+5. Select **Process Next Packet** to process one packet and review the result.
 
-`SimulationProvider` sits above the routes and owns a single `Router` instance. Moving between pages preserves the queues, statistics, and history. Refreshing the browser or confirming **Reset simulation** starts a new session. The latest 40 activity events are retained; statistics cover the entire current session.
+Alternatively, use the **guided demo** to load sample packets and explore the processing sequence. Simulation state is shared between pages during the current browser session; refreshing starts a new session.
 
-## Hands-on explanations
+## Technology stack
 
-- **Packet journey:** Review creation, routing, enqueue, and processing for the latest real action. Before-and-after snapshots explain the actual decision; reviewing steps does not change the simulation.
-- **Queue visibility:** Compact packet cards show arrival indices and per-queue processing order. The next-packet explanation shows queue precedence, minimum priority, and FIFO ties.
-- **Guided demo:** Load six samples through the real router, then process each explicitly. Progress follows the sample order `203 → 204 → 202 → 201 → 205 → 206`. Loading samples requires confirmation before replacing an existing session. Adding your own accepted packets hides the sample sequence and follows the actual updated queues. There is no automatic processing.
-- **Practice lab:** Try destination prefixes, default routing, and invalid IPv4 inputs. In a clearly separate practice array, reveal each linear-search comparison, follow FIFO ties, enqueue into available slots, reject overflow, and dequeue to see the manual left shift. Queue operations use the original `PacketPriorityQueue` class; the live simulation stays unchanged.
+| Technology | Role |
+| --- | --- |
+| React + JavaScript (JSX) | Interactive user interface |
+| React Router | Multi-page navigation |
+| Tailwind CSS | Styling and responsive layouts |
+| Vite | Development server and production build |
+| Lucide React | UI icons |
+| JavaScript arrays and classes | Core DSA implementations |
 
-## Original DSA rules
-
-- Four array-based queues, with a fixed capacity of **3 packets each**.
-- Destination prefixes select the queue: `192.*` → Queue 0, `10.*` → Queue 1, `172.*` → Queue 2, and `150.*` → Queue 3. Other valid IPv4 addresses default to Queue 0.
-- Processing checks **Queue 0 → 1 → 2 → 3**, serving the first nonempty queue.
-- Inside that queue, a manual linear scan selects the **lowest numerical priority**. Equal priorities use arrival order (FIFO). Remaining array elements shift left after removal.
-- Queue order takes precedence over packet priority: priority 5 in Queue 0 goes before priority 0 in Queue 1.
-- IDs and priorities must be nonnegative safe whole numbers. IPv4 addresses need four octets from 0 to 255, without leading zeros.
-- Active packet IDs must be unique. A processed packet's ID can be reused.
-- A full queue drops the incoming packet and records the event. Waiting packets stay in place, and the dropped ID is not reserved.
-- The next-packet preview follows the same scheduling rules without changing queue contents.
-
-## Checks and production build
-
-```powershell
-npm test
-npm run build
-```
-
-The Node tests cover routing, validation, overflow, duplicate IDs, priorities, FIFO ties, statistics, next-packet selection, explanations, and the guided demo. Browser checks exercise page navigation, real packet actions, the demo, the practice lab, and responsive layouts. Vite writes the production app to `dist/`.
-
-For browser smoke checks, start the built app:
-
-```powershell
-npm run preview -- --host 127.0.0.1 --port 4173
-```
-
-Then run this in a second terminal:
-
-```powershell
-npm run test:browser -- http://127.0.0.1:4173
-```
-
-The smoke runner uses an existing Chrome or Edge installation and Node's built-in WebSocket support. Set `CHROME_PATH` if your browser is installed elsewhere. Add `--screenshots=artifacts/browser` to save screenshots. With no URL argument, it checks `http://127.0.0.1:5173`.
-
-## Custom logo
-
-The official original logo is included unchanged at:
+## Project structure
 
 ```text
-public/brand/router-logo.png
+public/               Logo and static assets
+src/
+  components/         Reusable UI components
+  context/            Shared simulation state
+  core/               Router, routing rules, priority queues, validation
+  pages/              Five application pages
+  App.jsx             App layout and navigation
+tests/                Algorithm and simulation tests
+scripts/              Browser smoke test utilities
 ```
 
-The sidebar, mobile header and navigation, and dashboard welcome section display the supplied artwork with its original aspect ratio and `object-fit: contain`. The full image stays visible without stretching or cropping. The site uses the official image, with no generated or generic replacement.
+## Testing and build
 
-The browser favicon is extracted from the router-symbol portion of the same image; the original logo file remains unchanged.
+```bash
+npm test
+npm run build
+npm run preview
+```
 
-## Source layout
+- `npm test` runs the core logic tests.
+- `npm run build` produces the production site in `dist/`.
+- `npm run preview` serves the built application locally.
 
-- `src/core/`: original router, routing table, array queue, validation, and next-packet selector; `explanations.js` describes real choices, and `demo.js` creates the sample scenario.
-- `src/context/SimulationContext.jsx`: shared simulation state and actions.
-- `src/pages/`: the five routed pages, `learning.css`, and scoped `algorithm-lab.css`.
-- `src/components/`: shared UI plus `PacketJourney`, `DemoControl`, and `AlgorithmLab`.
-- `src/styles.css` and `src/enhancements.css`: responsive theme and readable visual explanations.
-- `src/App.jsx`: responsive navigation, routes, reset confirmation, and notifications.
-- `tests/`: DSA, selector, explanation, and demo tests; `scripts/browser-smoke.mjs`: browser checks.
+For browser smoke checks, see `scripts/browser-smoke.mjs` and the `test:browser` command in `package.json`.
 
-## Hosting later
+## Project repository
 
-This redesign runs in the existing local project; it has not been published. To host the production `dist/` folder, configure your static host to serve `index.html` for application routes such as `/queues` and `/history`. This fallback allows React Router's `BrowserRouter` to handle direct visits and refreshes on every page.
+**GitHub:** [Multi-Queue Router Simulator](https://github.com/sohailahmadmarwat/Multi-Queue-Router-Simulator)
+
+This project focuses on visualizing **routing logic, fixed-capacity arrays, priority queues, and scheduling decisions** through a beginner-friendly website.
